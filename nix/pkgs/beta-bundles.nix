@@ -1,4 +1,5 @@
 {
+  lib,
   mkShell,
   poetry2nix,
   python311,
@@ -7,12 +8,11 @@
   poetry,
   solc,
   openssl,
-  dasel,
 }:
   let
     projectDir = poetry2nix.cleanPythonSources { src = ./../..; };
     python = python311;
-    pythonPackages = python311Packages;
+    pythonPackages = python.pkgs;
 
     overrides = poetry2nix.overrides.withDefaults (final: prev: {
       pyunormalize = prev.pyunormalize.overridePythonAttrs (old: {
@@ -23,7 +23,7 @@
       frozenlist = prev.frozenlist.overridePythonAttrs
         (old: { buildInputs = (old.buildInputs or [ ]) ++ [ final.tomli ]; });
       web3 = prev.web3.overridePythonAttrs
-        (old: { buildInputs = (old.buildInputs or [ ]) ++ (with pythonPackages; [ cytoolz toolz ]); });
+        (old: { buildInputs = (old.buildInputs or [ ]) ++ [ pythonPackages.toolz pythonPackages.cytoolz ]; });
       });
 
       devShell = mkShell {
@@ -31,17 +31,13 @@
           (poetry2nix.mkPoetryEnv {
             inherit overrides projectDir python;
 
-            editablePackageSources = { mev = projectDir + "/mev"; };
+            editablePackageSources = { beta_bundles_py = projectDir + "/beta_bundles_py"; };
           })
 
           python
           poetry
-          solc
 
           openssl
-
-          direnv
-          dasel
         ];
       };
 

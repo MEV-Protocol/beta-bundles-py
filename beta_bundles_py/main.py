@@ -134,8 +134,8 @@ def log_loop(poll_interval):
         time.sleep(poll_interval)
 
 def main():
+    setup_logging()
     log_loop(2)
 
 if __name__ == '__main__':
-    setup_logging()
     main()
