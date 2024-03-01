@@ -8,6 +8,8 @@
   poetry,
   solc,
   openssl,
+  dockerTools,
+  stdenvNoCC,
 }:
   let
     projectDir = poetry2nix.cleanPythonSources { src = ./../..; };
@@ -46,5 +48,29 @@
 
       doCheck = true;
     };
+
+    abis = stdenvNoCC.mkDerivation {
+      name = "beta-bundles-abis";
+      src = "${projectDir}/abis";
+
+      buildPhase = ''
+        mkdir -p $out
+        cp -rv $src $out
+      '';
+    };
+
+    docker = dockerTools.buildLayeredImage {
+      name = app.pname;
+      tag = app.version;
+      contents = [
+        app
+        abis
+      ];
+
+      config = {
+        Cmd = [ "/bin/beta_bundles_py" ];
+        WorkingDir = "/";
+      };
+    };
   in
-app // { inherit devShell; }
+app // { inherit devShell docker; }

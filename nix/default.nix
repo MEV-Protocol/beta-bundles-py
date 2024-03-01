@@ -4,7 +4,12 @@
     app = pkgs.callPackage ./pkgs/beta-bundles.nix { };
   in
   {
-    packages.default = app;
+    packages = {
+      default = app;
+
+      beta-bundles-py = app;
+      beta-bundles-py-docker = app.docker;
+    };
 
     devShells.default = app.devShell;
 
