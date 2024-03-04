@@ -5,12 +5,15 @@ description = "L2 auction monitoring and bundle submission example in py"
 authors = ["Manifold FInance"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "beta_bundles_py"}]
+#packages = [{include = "beta_bundles_py"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
 web3 = "^6.15.1"
 coloredlogs = "^15.0.1"
+
+[tool.poetry.scripts]
+beta_bundles_py = "beta_bundles_py.main:main"
 
 
 [build-system]
