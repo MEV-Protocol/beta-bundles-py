@@ -14,7 +14,7 @@
     devShells.default = app.devShell;
 
     treefmt = {
-      projectRootFile = "../flake.nix";
+      projectRootFile = ../flake.nix;
 
       programs.black.enable = true;
       programs.nixfmt.enable = true;
