@@ -6,7 +6,7 @@
         default = app;
 
         beta-bundles-py = app;
-        beta-bundles-py-docker = app.docker;
+        docker-beta-bundles-py = app.docker;
       };
 
       devShells.default = app.devShell;

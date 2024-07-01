@@ -1,0 +1,49 @@
+name: Nix build docker image
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+    tags:
+
+jobs:
+  docker:
+    runs-on: [nix]
+    name: "Nix build and push Docker image to GHCR"
+
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.event.repository.full_name }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha
+
+      - name: Nix build
+        id: nix-build
+        run: |
+          build_output=$(nix build -L --show-trace --no-link --print-out-paths '.#docker-beta-bundles-py')
+          echo ::set-output name=image::"$build_output"
+
+      - name: Push to Docker registry
+        run: |
+          skopeo copy "docker-archive:${{ steps.nix-build.outputs.image }}" "docker://${{ steps.meta.outputs.tags}}"
